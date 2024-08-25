@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ABCD123</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+            box-sizing: border-box;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        textarea {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-bottom: 20px;
+            font-family: monospace;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-bottom: 20px;
+        }
+
+        pre {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>JSON Processor</h1>
+    <textarea id="jsonInput" placeholder='Enter JSON here... Example: { "data": ["A","C","z"] }'></textarea>
+    <button onclick="submitJson()">Submit</button>
+
+    <select id="filterOptions" multiple>
+        <option value="alphabets">Alphabets</option>
+        <option value="numbers">Numbers</option>
+        <option value="highest_lowercase_alphabet">Highest lowercase alphabet</option>
+    </select>
+
+    <div id="responseContainer"></div>
+</div>
+
+<script>
+    async function submitJson() {
+        const jsonInput = document.getElementById('jsonInput').value;
+        const filterOptions = Array.from(document.getElementById('filterOptions').selectedOptions).map(option => option.value);
+
+        try {
+            const jsonData = JSON.parse(jsonInput);
+            const response = await fetch('http://127.0.0.1:5000/bfhl', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(jsonData)
+            });
+
+            const responseData = await response.json();
+
+            let filteredResponse = {};
+            if (filterOptions.includes('alphabets')) filteredResponse.alphabets = responseData.alphabets;
+            if (filterOptions.includes('numbers')) filteredResponse.numbers = responseData.numbers;
+            if (filterOptions.includes('highest_lowercase_alphabet')) filteredResponse.highest_lowercase_alphabet = responseData.highest_lowercase_alphabet;
+
+            document.getElementById('responseContainer').innerHTML = `<pre>${JSON.stringify(filteredResponse, null, 2)}</pre>`;
+        } catch (err) {
+            alert('Invalid JSON or API error');
+            console.error(err);
+        }
+    }
+</script>
+
+</body>
+</html>
